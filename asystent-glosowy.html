@@ -2,147 +2,119 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0f">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Asystent">
+<meta name="apple-mobile-web-app-title" content="Sekretarka">
 <title>Asystent Głosowy</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a26;
-    --border: rgba(255,255,255,0.07); --accent: #6c63ff; --accent2: #a78bfa;
+    --border: rgba(255,255,255,0.08); --accent: #6c63ff;
     --text: #f0eff8; --muted: #6b6a7a; --success: #34d399;
-    --danger: #f87171; --user-bubble: #1e1b40; --bot-bubble: #12121a; --recording: #f87171;
+    --danger: #f87171; --recording: #f87171;
   }
   html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow: hidden; }
 
-  #config-overlay {
-    position: fixed; inset: 0; z-index: 100; background: var(--bg);
+  #config {
+    position: fixed; inset: 0; z-index: 200; background: var(--bg);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 24px; overflow-y: auto;
+    padding: 28px; overflow-y: auto;
   }
-  .config-logo { font-size: 12px; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; margin-bottom: 24px; }
-  .config-title { font-size: 24px; font-weight: 700; margin-bottom: 6px; text-align: center; }
-  .config-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; text-align: center; line-height: 1.6; max-width: 320px; }
-  .config-form { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; }
-  .field-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; display: block; }
-  .field-input { width: 100%; padding: 11px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; outline: none; transition: border-color 0.2s; }
-  .field-input:focus { border-color: var(--accent); }
-  .field-input::placeholder { color: var(--muted); }
-  .config-hint { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
-  .section-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); padding: 4px 0 2px; border-bottom: 1px solid rgba(167,139,250,0.2); margin-bottom: 2px; }
-  .config-btn { padding: 13px; background: var(--accent); border: none; border-radius: 10px; color: #fff; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 4px; }
-  .config-btn:hover { opacity: 0.85; }
-  .skip-link { font-size: 12px; color: var(--muted); text-align: center; cursor: pointer; }
-  .skip-link span { color: var(--accent2); text-decoration: underline; }
+  .cfg-logo { font-size: 11px; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; margin-bottom: 20px; }
+  .cfg-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; text-align: center; }
+  .cfg-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; text-align: center; line-height: 1.6; max-width: 320px; }
+  .cfg-form { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; }
+  .f-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; display: block; }
+  .f-input { width: 100%; padding: 11px 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; outline: none; transition: border-color 0.2s; }
+  .f-input:focus { border-color: var(--accent); }
+  .f-input::placeholder { color: var(--muted); }
+  .f-hint { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+  .f-section { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #a78bfa; padding-bottom: 4px; border-bottom: 1px solid rgba(167,139,250,0.2); }
+  .cfg-btn { padding: 13px; background: var(--accent); border: none; border-radius: 10px; color: #fff; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+  .cfg-btn:active { opacity: 0.85; }
 
   #app { display: none; flex-direction: column; height: 100%; height: 100dvh; }
 
-  header { padding: 14px 18px 11px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-  .header-left { display: flex; align-items: center; gap: 10px; }
-  .header-title { font-size: 16px; font-weight: 600; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
-  .status-dot.online { background: var(--success); }
-  .status-dot.connecting { background: #f59e0b; animation: blink 1s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  #settings-btn { width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  #settings-btn:hover { border-color: var(--accent); color: var(--text); }
+  header { padding: 12px 16px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--bg); }
+  .h-left { display: flex; align-items: center; gap: 9px; }
+  .h-title { font-size: 15px; font-weight: 600; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+  #settings-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  #settings-btn:active { border-color: var(--accent); }
 
-  #chat { flex: 1; overflow-y: auto; padding: 18px 14px; display: flex; flex-direction: column; gap: 11px; scroll-behavior: smooth; }
-  #chat::-webkit-scrollbar { width: 3px; }
-  #chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  #bot-frame { flex: 1; border: none; background: #fff; display: block; width: 100%; min-height: 0; }
 
-  .bubble { max-width: 85%; padding: 11px 15px; border-radius: 18px; font-size: 15px; line-height: 1.55; animation: bubbleIn 0.22s ease-out; }
-  @keyframes bubbleIn { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
-  .bubble.user { background: var(--user-bubble); border: 1px solid rgba(108,99,255,0.25); align-self: flex-end; border-bottom-right-radius: 4px; }
-  .bubble.bot { background: var(--bot-bubble); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
-  .bubble.system { background: transparent; border: 1px dashed var(--border); align-self: center; font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; padding: 7px 13px; text-align: center; }
+  #voice-bar { flex-shrink: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 10px 14px 20px; }
 
-  .typing { display: flex; gap: 5px; padding: 14px; align-items: center; align-self: flex-start; }
-  .typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: bounce 1s infinite; }
-  .typing span:nth-child(2) { animation-delay: 0.15s; }
-  .typing span:nth-child(3) { animation-delay: 0.3s; }
-  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+  #transcript-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+  #transcript-row.visible { opacity: 1; pointer-events: all; }
+  #transcript-box { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; font-size: 14px; line-height: 1.5; color: var(--text); min-height: 42px; outline: none; }
+  #transcript-box:focus { border-color: var(--accent); }
+  #transcript-box:empty::before { content: attr(data-placeholder); color: var(--muted); font-style: italic; }
 
-  #transcript-bar { padding: 0 14px; flex-shrink: 0; max-height: 0; overflow: hidden; transition: max-height 0.2s; }
-  #transcript-bar.active { max-height: 44px; padding: 7px 14px; }
-  #transcript-live { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; font-style: italic; }
+  #copy-btn { width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+  #copy-btn:active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  #copy-btn.copied { background: rgba(52,211,153,0.15); color: var(--success); border-color: var(--success); }
 
-  footer { padding: 11px 14px 22px; flex-shrink: 0; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-  #record-btn { width: 62px; height: 62px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+  #controls-row { display: flex; gap: 10px; align-items: center; }
+
+  #record-btn { width: 58px; height: 58px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
   #record-btn:active { transform: scale(0.93); }
-  #record-btn.recording { background: rgba(248,113,113,0.12); border-color: var(--recording); animation: pulse-ring 1.4s ease-out infinite; }
-  #record-btn.recording .mic-path { fill: var(--recording); }
-  @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(248,113,113,0.35)} 70%{box-shadow:0 0 0 14px rgba(248,113,113,0)} 100%{box-shadow:0 0 0 0 rgba(248,113,113,0)} }
-  .mic-path { fill: var(--text); transition: fill 0.2s; }
+  #record-btn.recording { background: rgba(248,113,113,0.12); border-color: var(--recording); animation: pulse 1.4s ease-out infinite; }
+  #record-btn.recording .mp { fill: var(--recording); }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(248,113,113,0.4)} 70%{box-shadow:0 0 0 12px rgba(248,113,113,0)} 100%{box-shadow:0 0 0 0 rgba(248,113,113,0)} }
+  .mp { fill: var(--text); transition: fill 0.2s; }
 
-  #text-input-wrap { flex: 1; display: flex; gap: 8px; }
-  #text-input { flex: 1; padding: 13px 15px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; resize: none; }
-  #text-input:focus { border-color: var(--accent); }
-  #text-input::placeholder { color: var(--muted); }
-  #send-btn { width: 46px; height: 46px; border-radius: 11px; border: none; background: var(--accent); cursor: pointer; display: flex; align-items: center; justify-content: center; align-self: flex-end; transition: opacity 0.2s; flex-shrink: 0; }
-  #send-btn:hover { opacity: 0.85; }
-  #send-btn:active { transform: scale(0.95); }
+  .hint-text { font-size: 12px; color: var(--muted); line-height: 1.5; flex: 1; font-family: 'DM Mono', monospace; }
+  .hint-text strong { color: var(--text); font-weight: 500; }
 
-  #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); text-align: center; padding: 60px 24px; flex: 1; }
-  .empty-icon { font-size: 40px; opacity: 0.2; }
-  .empty-title { font-size: 16px; font-weight: 600; color: var(--text); opacity: 0.45; }
-  .empty-text { font-size: 13px; line-height: 1.6; }
-
-  #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); padding: 9px 16px; border-radius: 10px; font-size: 13px; opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 50; font-family: 'DM Mono', monospace; max-width: 320px; text-align: center; }
+  #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(16px); background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); padding: 8px 16px; border-radius: 9px; font-size: 13px; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 99; font-family: 'DM Mono', monospace; text-align: center; max-width: 300px; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
-<div id="config-overlay">
-  <div class="config-logo">Asystent głosowy</div>
-  <div class="config-title">Konfiguracja</div>
-  <div class="config-sub">Wklej klucze — zrobisz to tylko raz, aplikacja zapamięta.</div>
+<div id="config">
+  <div class="cfg-logo">Asystent głosowy</div>
+  <div class="cfg-title">Konfiguracja</div>
+  <div class="cfg-sub">Dane są zapisywane tylko na tym urządzeniu — nic nie trafia do internetu.</div>
 
-  <div class="config-form">
-    <div class="section-label">Azure Speech — rozpoznawanie głosu</div>
+  <div class="cfg-form">
+    <div class="f-section">Azure Speech — rozpoznawanie głosu</div>
 
     <div>
-      <span class="field-label">Klucz API (Klucz 1)</span>
-      <input class="field-input" id="cfg-speech-key" type="password" placeholder="1zBqBU9QNi2L4wLvs…">
-      <div class="config-hint">Azure Portal → zasób Speech → Klucze i punkt końcowy → Klucz 1</div>
+      <span class="f-label">Klucz API (Klucz 1)</span>
+      <input class="f-input" id="cfg-key" type="password" placeholder="Wklej Klucz 1 z Azure…">
+      <div class="f-hint">Azure Portal → zasób Speech → Klucze i punkt końcowy → Klucz 1</div>
     </div>
 
     <div>
-      <span class="field-label">Region</span>
-      <input class="field-input" id="cfg-speech-region" type="text" placeholder="westeurope" value="westeurope">
-      <div class="config-hint">Pole "Lokalizacja/Region" na tym samym ekranie (np. westeurope)</div>
+      <span class="f-label">Region</span>
+      <input class="f-input" id="cfg-region" type="text" placeholder="westeurope" value="westeurope">
     </div>
 
-    <div class="section-label" style="margin-top:4px">Copilot Studio — Twój bot</div>
+    <div class="f-section" style="margin-top:4px">Copilot Studio — URL czatu bota</div>
 
     <div>
-      <span class="field-label">Direct Line Secret Key</span>
-      <input class="field-input" id="cfg-dl-secret" type="password" placeholder="Wklej klucz Direct Line…">
-      <div class="config-hint">Copilot Studio → Ustawienia → Kanały → Direct Line → klucz tajny</div>
+      <span class="f-label">URL webchat bota</span>
+      <input class="f-input" id="cfg-bot-url" type="password" placeholder="https://copilotstudio.microsoft.com/…">
+      <div class="f-hint">Copilot Studio → Kanały → Aplikacja sieci Web → skopiuj adres src= z kodu osadzania</div>
     </div>
 
-    <div>
-      <span class="field-label">Nazwa bota (opcjonalnie)</span>
-      <input class="field-input" id="cfg-bot-name" type="text" placeholder="np. Asystent Firmowy">
-    </div>
-
-    <button class="config-btn" onclick="saveConfig()">Zapisz i połącz →</button>
-    <div class="skip-link" onclick="skipConfig()">Nie masz jeszcze bota? <span>Uruchom w trybie demo</span></div>
+    <button class="cfg-btn" onclick="saveConfig()">Zapisz i uruchom →</button>
   </div>
 </div>
 
 <div id="app">
   <header>
-    <div class="header-left">
-      <div class="status-dot" id="status-dot"></div>
-      <span class="header-title" id="header-bot-name">Asystent</span>
+    <div class="h-left">
+      <div class="status-dot"></div>
+      <span class="h-title" id="app-title">Asystent</span>
     </div>
     <button id="settings-btn" onclick="showConfig()">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -152,237 +124,158 @@
     </button>
   </header>
 
-  <div id="chat">
-    <div id="empty-state">
-      <div class="empty-icon">🎙️</div>
-      <div class="empty-title">Gotowy</div>
-      <div class="empty-text">Naciśnij mikrofon i mów po polsku.<br>Możesz też wpisać wiadomość tekstem.</div>
-    </div>
-  </div>
+  <iframe id="bot-frame" src="" allow="microphone; camera" style="flex:1;border:none;background:#fff;display:block;width:100%;min-height:0;"></iframe>
 
-  <div id="transcript-bar"><div id="transcript-live"></div></div>
-
-  <footer>
-    <button id="record-btn" onclick="toggleRecording()">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <path class="mic-path" d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z"/>
-        <path class="mic-path" d="M19 10V12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12V10H3V12C3 16.42 6.24 20.08 10.5 20.83V23H13.5V20.83C17.76 20.08 21 16.42 21 12V10H19Z"/>
-      </svg>
-    </button>
-    <div id="text-input-wrap">
-      <textarea id="text-input" rows="1" placeholder="Lub wpisz wiadomość…" oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
-      <button id="send-btn" onclick="sendText()">
-        <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" stroke-linecap="round" stroke-linejoin="round"/>
+  <div id="voice-bar">
+    <div id="transcript-row">
+      <div id="transcript-box" contenteditable="true" data-placeholder="Transkrypt — możesz edytować…"></div>
+      <button id="copy-btn" onclick="copyTranscript()" title="Kopiuj">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
         </svg>
       </button>
     </div>
-  </footer>
+
+    <div id="controls-row">
+      <button id="record-btn" onclick="toggleRec()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path class="mp" d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z"/>
+          <path class="mp" d="M19 10V12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12V10H3V12C3 16.42 6.24 20.08 10.5 20.83V23H13.5V20.83C17.76 20.08 21 16.42 21 12V10H19Z"/>
+        </svg>
+      </button>
+      <div class="hint-text" id="hint-text">
+        <strong>Naciśnij mikrofon</strong> i mów po polsku.<br>Tekst skopiuje się automatycznie — wklej go w czacie bota.
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-let CONFIG = { speechKey:'', speechRegion:'westeurope', dlSecret:'', botName:'Asystent', demoMode:false };
-let conversationId=null, watermark=null, pollInterval=null;
-let isRecording=false, mediaRecorder=null, audioChunks=[];
+let CFG = { key:'', region:'westeurope', botUrl:'' };
+let isRec=false, mr=null, chunks=[];
 
-function saveConfig() {
-  const sk = document.getElementById('cfg-speech-key').value.trim();
-  const sr = document.getElementById('cfg-speech-region').value.trim();
-  const dl = document.getElementById('cfg-dl-secret').value.trim();
-  const bn = document.getElementById('cfg-bot-name').value.trim();
-  if (!sk || !sr) { showToast('Uzupełnij klucz i region Azure Speech'); return; }
-  if (!dl) { showToast('Uzupełnij klucz Direct Line'); return; }
-  CONFIG = { speechKey:sk, speechRegion:sr, dlSecret:dl, botName:bn||'Asystent', demoMode:false };
-  localStorage.setItem('va_cfg', JSON.stringify(CONFIG));
+function saveConfig(){
+  const k=document.getElementById('cfg-key').value.trim();
+  const r=document.getElementById('cfg-region').value.trim();
+  const b=document.getElementById('cfg-bot-url').value.trim();
+  if(!k||!r){ showToast('Uzupełnij klucz i region Azure Speech'); return; }
+  if(!b){ showToast('Uzupełnij URL bota'); return; }
+  CFG={key:k, region:r, botUrl:b};
+  localStorage.setItem('va3_cfg', JSON.stringify(CFG));
   startApp();
 }
 
-function skipConfig() {
-  CONFIG.demoMode=true; CONFIG.botName='Demo';
-  startApp();
-}
-
-function showConfig() {
-  document.getElementById('config-overlay').style.display='flex';
+function showConfig(){
+  document.getElementById('config').style.display='flex';
   document.getElementById('app').style.display='none';
-  document.getElementById('cfg-speech-key').value=CONFIG.speechKey;
-  document.getElementById('cfg-speech-region').value=CONFIG.speechRegion;
-  document.getElementById('cfg-dl-secret').value=CONFIG.dlSecret;
-  document.getElementById('cfg-bot-name').value=CONFIG.botName;
+  document.getElementById('cfg-key').value=CFG.key;
+  document.getElementById('cfg-region').value=CFG.region;
+  document.getElementById('cfg-bot-url').value=CFG.botUrl;
 }
 
-function loadConfig() {
-  try {
-    const s=localStorage.getItem('va_cfg');
-    if(s){ CONFIG={...CONFIG,...JSON.parse(s)}; return CONFIG.demoMode||(!!CONFIG.speechKey&&!!CONFIG.dlSecret); }
-  } catch(e){}
+function loadConfig(){
+  try{ const s=localStorage.getItem('va3_cfg'); if(s){CFG={...CFG,...JSON.parse(s)}; return !!(CFG.key&&CFG.botUrl);} }catch(e){}
   return false;
 }
 
-// ── RECORDING ──
-async function toggleRecording() {
-  if(isRecording){ stopRecording(); } else { await startRecording(); }
+function startApp(){
+  document.getElementById('config').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('bot-frame').src=CFG.botUrl;
 }
 
-async function startRecording() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
-    audioChunks=[];
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-    mediaRecorder.onstop = processAudio;
-    mediaRecorder.start();
-    isRecording=true;
+async function toggleRec(){
+  if(isRec) stopRec(); else await startRec();
+}
+
+async function startRec(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    chunks=[];
+    mr=new MediaRecorder(stream);
+    mr.ondataavailable=e=>chunks.push(e.data);
+    mr.onstop=processAudio;
+    mr.start();
+    isRec=true;
     document.getElementById('record-btn').classList.add('recording');
-    setTranscript('🎙️ Nagrywam… (naciśnij ponownie aby zatrzymać)');
-  } catch(e) {
-    showToast('Brak dostępu do mikrofonu');
-  }
+    document.getElementById('hint-text').innerHTML='<strong style="color:var(--recording)">● Nagrywam…</strong><br>Naciśnij ponownie aby zatrzymać.';
+    document.getElementById('transcript-row').classList.remove('visible');
+  }catch(e){ showToast('Brak dostępu do mikrofonu'); }
 }
 
-function stopRecording() {
-  if(mediaRecorder && isRecording) {
-    mediaRecorder.stop();
-    mediaRecorder.stream.getTracks().forEach(t=>t.stop());
-    isRecording=false;
+function stopRec(){
+  if(mr&&isRec){
+    mr.stop(); mr.stream.getTracks().forEach(t=>t.stop());
+    isRec=false;
     document.getElementById('record-btn').classList.remove('recording');
-    setTranscript('⏳ Przetwarzam mowę…');
+    document.getElementById('hint-text').innerHTML='<strong>⏳ Przetwarzam…</strong>';
   }
 }
 
-async function processAudio() {
-  const blob = new Blob(audioChunks, { type:'audio/webm' });
-  try {
-    const wav = await toWav(blob);
-    await transcribe(wav);
-  } catch(e) {
-    setTranscript('');
-    showToast('Błąd przetwarzania nagrania');
-  }
+async function processAudio(){
+  try{ const wav=await toWav(new Blob(chunks,{type:'audio/webm'})); await transcribe(wav); }
+  catch(e){ document.getElementById('hint-text').innerHTML='<strong>Błąd</strong> — spróbuj ponownie'; }
 }
 
-// ── WAV CONVERSION ──
-async function toWav(blob) {
-  const ab = await blob.arrayBuffer();
-  const ctx = new AudioContext();
-  const buf = await ctx.decodeAudioData(ab);
-  ctx.close();
-  const sr=16000, off=new OfflineAudioContext(1, Math.ceil(buf.duration*sr), sr);
+async function toWav(blob){
+  const ab=await blob.arrayBuffer();
+  const ctx=new AudioContext();
+  const buf=await ctx.decodeAudioData(ab); ctx.close();
+  const sr=16000,off=new OfflineAudioContext(1,Math.ceil(buf.duration*sr),sr);
   const src=off.createBufferSource(); src.buffer=buf; src.connect(off.destination); src.start();
-  const rendered=await off.startRendering();
-  const pcm=rendered.getChannelData(0);
-  const i16=new Int16Array(pcm.length);
-  for(let i=0;i<pcm.length;i++){ const s=Math.max(-1,Math.min(1,pcm[i])); i16[i]=s<0?s*0x8000:s*0x7FFF; }
-  const dLen=i16.byteLength, wav=new ArrayBuffer(44+dLen), v=new DataView(wav);
-  const w32=(o,n)=>v.setUint32(o,n,true), w16=(o,n)=>v.setUint16(o,n,true);
+  const ren=await off.startRendering();
+  const pcm=ren.getChannelData(0),i16=new Int16Array(pcm.length);
+  for(let i=0;i<pcm.length;i++){const s=Math.max(-1,Math.min(1,pcm[i]));i16[i]=s<0?s*0x8000:s*0x7FFF;}
+  const dLen=i16.byteLength,wav=new ArrayBuffer(44+dLen),v=new DataView(wav);
+  const w32=(o,n)=>v.setUint32(o,n,true),w16=(o,n)=>v.setUint16(o,n,true);
   [82,73,70,70].forEach((b,i)=>v.setUint8(i,b)); w32(4,36+dLen);
   [87,65,86,69].forEach((b,i)=>v.setUint8(8+i,b));
   [102,109,116,32].forEach((b,i)=>v.setUint8(12+i,b));
-  w32(16,16); w16(20,1); w16(22,1); w32(24,sr); w32(28,sr*2); w16(32,2); w16(34,16);
+  w32(16,16);w16(20,1);w16(22,1);w32(24,sr);w32(28,sr*2);w16(32,2);w16(34,16);
   [100,97,116,97].forEach((b,i)=>v.setUint8(36+i,b)); w32(40,dLen);
   new Uint8Array(wav,44).set(new Uint8Array(i16.buffer));
   return new Blob([wav],{type:'audio/wav'});
 }
 
-// ── AZURE SPEECH ──
-async function transcribe(wavBlob) {
-  if(CONFIG.demoMode) { setTranscript(''); sendToBotText('[demo głos]'); return; }
-  const url=`https://${CONFIG.speechRegion}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=pl-PL&format=detailed`;
-  try {
-    const res=await fetch(url,{
-      method:'POST',
-      headers:{ 'Ocp-Apim-Subscription-Key':CONFIG.speechKey, 'Content-Type':'audio/wav; codecs=audio/pcm; samplerate=16000', 'Accept':'application/json' },
-      body:wavBlob
-    });
-    if(!res.ok) throw new Error('Speech API '+res.status);
-    const data=await res.json();
-    const text=(data.DisplayText||'').trim();
-    setTranscript('');
-    if(text) sendToBotText(text);
-    else showToast('Nie rozpoznano mowy — spróbuj ponownie');
-  } catch(e) {
-    setTranscript('');
-    showToast('Błąd Azure Speech — sprawdź klucz i region');
-    console.error(e);
-  }
-}
-
-// ── DIRECT LINE ──
-async function initConversation() {
-  if(CONFIG.demoMode){ setStatus('online'); addBubble('system','Tryb demo — mów lub pisz'); return; }
-  setStatus('connecting');
-  try {
-    const res=await fetch('https://directline.botframework.com/v3/directline/conversations',{
-      method:'POST', headers:{'Authorization':`Bearer ${CONFIG.dlSecret}`,'Content-Type':'application/json'}
-    });
-    if(!res.ok) throw new Error('DL '+res.status);
+async function transcribe(wavBlob){
+  const url=`https://${CFG.region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=pl-PL&format=detailed`;
+  try{
+    const res=await fetch(url,{method:'POST',headers:{'Ocp-Apim-Subscription-Key':CFG.key,'Content-Type':'audio/wav; codecs=audio/pcm; samplerate=16000','Accept':'application/json'},body:wavBlob});
+    if(!res.ok) throw new Error('Speech '+res.status);
     const d=await res.json();
-    conversationId=d.conversationId;
-    setStatus('online');
-    addBubble('system','Połączono · '+CONFIG.botName);
-    startPolling();
-  } catch(e) {
-    setStatus('offline');
-    addBubble('system','Błąd połączenia — sprawdź klucz Direct Line w ustawieniach');
+    const text=(d.DisplayText||'').trim();
+    if(text){
+      document.getElementById('transcript-box').textContent=text;
+      document.getElementById('transcript-row').classList.add('visible');
+      document.getElementById('hint-text').innerHTML='<strong>Gotowe!</strong> Tekst skopiowany — wklej w czacie bota.';
+      try{ await navigator.clipboard.writeText(text); showCopied(); }catch(e){}
+    } else {
+      document.getElementById('hint-text').innerHTML='<strong>Nie rozpoznano</strong> — spróbuj ponownie';
+      showToast('Nie rozpoznano mowy');
+    }
+  }catch(e){
+    document.getElementById('hint-text').innerHTML='<strong>Błąd Azure</strong> — sprawdź klucz w ustawieniach';
+    showToast('Błąd Azure Speech'); console.error(e);
   }
 }
 
-async function sendToBotText(text) {
-  addBubble('user',text);
-  if(CONFIG.demoMode){ showTyping(); await delay(800); hideTyping(); addBubble('bot',`[Demo] Dostałem: "${text}"`); return; }
-  if(!conversationId){ showToast('Brak połączenia z botem'); return; }
-  showTyping();
-  try {
-    await fetch(`https://directline.botframework.com/v3/directline/conversations/${conversationId}/activities`,{
-      method:'POST',
-      headers:{'Authorization':`Bearer ${CONFIG.dlSecret}`,'Content-Type':'application/json'},
-      body:JSON.stringify({type:'message',from:{id:'user1',name:'Użytkownik'},text})
-    });
-  } catch(e){ hideTyping(); showToast('Błąd wysyłania'); }
+async function copyTranscript(){
+  const text=document.getElementById('transcript-box').textContent.trim();
+  if(!text) return;
+  try{ await navigator.clipboard.writeText(text); showCopied(); }
+  catch(e){ showToast('Zaznacz tekst i skopiuj ręcznie'); }
 }
 
-function startPolling() {
-  if(pollInterval) clearInterval(pollInterval);
-  pollInterval=setInterval(async()=>{
-    if(!conversationId) return;
-    try {
-      const url=`https://directline.botframework.com/v3/directline/conversations/${conversationId}/activities`+(watermark?`?watermark=${watermark}`:'');
-      const res=await fetch(url,{headers:{'Authorization':`Bearer ${CONFIG.dlSecret}`}});
-      if(!res.ok) return;
-      const d=await res.json(); watermark=d.watermark;
-      for(const a of d.activities||[]){
-        if(a.from?.role==='bot'&&a.type==='message'){ hideTyping(); addBubble('bot',a.text||'[Brak treści]'); }
-      }
-    } catch(e){}
-  },1500);
+function showCopied(){
+  const btn=document.getElementById('copy-btn');
+  btn.classList.add('copied');
+  btn.innerHTML='<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML='<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'; },2000);
 }
 
-// ── UI ──
-function addBubble(type,text){
-  const chat=document.getElementById('chat');
-  const emp=document.getElementById('empty-state'); if(emp) emp.remove();
-  const d=document.createElement('div'); d.className='bubble '+type; d.textContent=text;
-  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
-}
-let typingEl=null;
-function showTyping(){ if(typingEl) return; typingEl=document.createElement('div'); typingEl.className='typing'; typingEl.innerHTML='<span></span><span></span><span></span>'; document.getElementById('chat').appendChild(typingEl); document.getElementById('chat').scrollTop=99999; }
-function hideTyping(){ if(typingEl){ typingEl.remove(); typingEl=null; } }
-function setStatus(s){ const d=document.getElementById('status-dot'); d.className='status-dot'+(s==='online'?' online':s==='connecting'?' connecting':''); }
-function setTranscript(t){ document.getElementById('transcript-live').textContent=t; document.getElementById('transcript-bar').classList.toggle('active',!!t); }
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
-function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
-function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendText(); } }
-function sendText(){ const el=document.getElementById('text-input'); const t=el.value.trim(); if(!t) return; el.value=''; el.style.height=''; sendToBotText(t); }
-function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-async function startApp(){
-  document.getElementById('config-overlay').style.display='none';
-  document.getElementById('app').style.display='flex';
-  document.getElementById('header-bot-name').textContent=CONFIG.botName;
-  await initConversation();
-}
 
 if(loadConfig()) startApp();
 </script>
