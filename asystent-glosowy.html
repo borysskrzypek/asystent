@@ -19,7 +19,7 @@
     --danger: #f87171; --recording: #f87171;
   }
   html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow: hidden; }
-
+ 
   #config {
     position: fixed; inset: 0; z-index: 200; background: var(--bg);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -37,84 +37,104 @@
   .f-section { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #a78bfa; padding-bottom: 4px; border-bottom: 1px solid rgba(167,139,250,0.2); }
   .cfg-btn { padding: 13px; background: var(--accent); border: none; border-radius: 10px; color: #fff; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
   .cfg-btn:active { opacity: 0.85; }
-
+ 
   #app { display: none; flex-direction: column; height: 100%; height: 100dvh; }
-
+ 
   header { padding: 12px 16px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--bg); }
   .h-left { display: flex; align-items: center; gap: 9px; }
   .h-title { font-size: 15px; font-weight: 600; }
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
+  .status-dot.online { background: var(--success); }
+  .status-dot.connecting { background: #f59e0b; animation: blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
   #settings-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
   #settings-btn:active { border-color: var(--accent); }
-
-  #bot-frame { flex: 1; border: none; background: #fff; display: block; width: 100%; min-height: 0; }
-
-  #voice-bar { flex-shrink: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 10px 14px 20px; }
-
-  #transcript-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
-  #transcript-row.visible { opacity: 1; pointer-events: all; }
-  #transcript-box { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; font-size: 14px; line-height: 1.5; color: var(--text); min-height: 42px; outline: none; }
-  #transcript-box:focus { border-color: var(--accent); }
-  #transcript-box:empty::before { content: attr(data-placeholder); color: var(--muted); font-style: italic; }
-
-  #copy-btn { width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
-  #copy-btn:active { background: var(--accent); color: #fff; border-color: var(--accent); }
-  #copy-btn.copied { background: rgba(52,211,153,0.15); color: var(--success); border-color: var(--success); }
-
-  #controls-row { display: flex; gap: 10px; align-items: center; }
-
+ 
+  #chat { flex: 1; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+  #chat::-webkit-scrollbar { width: 3px; }
+  #chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+ 
+  .bubble { max-width: 85%; padding: 11px 15px; border-radius: 18px; font-size: 15px; line-height: 1.55; animation: bubbleIn 0.22s ease-out; word-break: break-word; }
+  @keyframes bubbleIn { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
+  .bubble.user { background: #1e1b40; border: 1px solid rgba(108,99,255,0.25); align-self: flex-end; border-bottom-right-radius: 4px; }
+  .bubble.bot { background: var(--surface); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
+  .bubble.system { background: transparent; border: 1px dashed var(--border); align-self: center; font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; padding: 7px 13px; text-align: center; }
+ 
+  .typing { display: flex; gap: 5px; padding: 14px; align-items: center; align-self: flex-start; }
+  .typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: bounce 1s infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+ 
+  #transcript-bar { padding: 0 14px; flex-shrink: 0; max-height: 0; overflow: hidden; transition: max-height 0.2s; }
+  #transcript-bar.active { max-height: 52px; padding: 8px 14px; }
+  #transcript-live { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; font-style: italic; }
+ 
+  footer { padding: 10px 14px 20px; flex-shrink: 0; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+ 
   #record-btn { width: 58px; height: 58px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
   #record-btn:active { transform: scale(0.93); }
   #record-btn.recording { background: rgba(248,113,113,0.12); border-color: var(--recording); animation: pulse 1.4s ease-out infinite; }
   #record-btn.recording .mp { fill: var(--recording); }
   @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(248,113,113,0.4)} 70%{box-shadow:0 0 0 12px rgba(248,113,113,0)} 100%{box-shadow:0 0 0 0 rgba(248,113,113,0)} }
   .mp { fill: var(--text); transition: fill 0.2s; }
-
-  .hint-text { font-size: 12px; color: var(--muted); line-height: 1.5; flex: 1; font-family: 'DM Mono', monospace; }
-  .hint-text strong { color: var(--text); font-weight: 500; }
-
+ 
+  #text-wrap { flex: 1; display: flex; gap: 8px; }
+  #text-input { flex: 1; padding: 13px 15px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; resize: none; }
+  #text-input:focus { border-color: var(--accent); }
+  #text-input::placeholder { color: var(--muted); }
+  #send-btn { width: 46px; height: 46px; border-radius: 11px; border: none; background: var(--accent); cursor: pointer; display: flex; align-items: center; justify-content: center; align-self: flex-end; flex-shrink: 0; }
+  #send-btn:active { opacity: 0.85; transform: scale(0.95); }
+ 
+  #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); text-align: center; padding: 60px 24px; flex: 1; }
+  .ei { font-size: 40px; opacity: 0.2; }
+  .et { font-size: 16px; font-weight: 600; color: var(--text); opacity: 0.45; }
+  .es { font-size: 13px; line-height: 1.6; }
+ 
   #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(16px); background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); padding: 8px 16px; border-radius: 9px; font-size: 13px; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 99; font-family: 'DM Mono', monospace; text-align: center; max-width: 300px; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
-
+ 
 <div id="config">
   <div class="cfg-logo">Asystent głosowy</div>
   <div class="cfg-title">Konfiguracja</div>
-  <div class="cfg-sub">Dane są zapisywane tylko na tym urządzeniu — nic nie trafia do internetu.</div>
-
+  <div class="cfg-sub">Dane zapisywane tylko na tym urządzeniu.</div>
+ 
   <div class="cfg-form">
     <div class="f-section">Azure Speech — rozpoznawanie głosu</div>
-
     <div>
       <span class="f-label">Klucz API (Klucz 1)</span>
       <input class="f-input" id="cfg-key" type="password" placeholder="Wklej Klucz 1 z Azure…">
       <div class="f-hint">Azure Portal → zasób Speech → Klucze i punkt końcowy → Klucz 1</div>
     </div>
-
     <div>
       <span class="f-label">Region</span>
       <input class="f-input" id="cfg-region" type="text" placeholder="westeurope" value="westeurope">
     </div>
-
-    <div class="f-section" style="margin-top:4px">Copilot Studio — URL czatu bota</div>
-
+ 
+    <div class="f-section" style="margin-top:4px">Copilot Studio — metadane bota</div>
     <div>
-      <span class="f-label">URL webchat bota</span>
-      <input class="f-input" id="cfg-bot-url" type="password" placeholder="https://copilotstudio.microsoft.com/…">
-      <div class="f-hint">Copilot Studio → Kanały → Aplikacja sieci Web → skopiuj adres src= z kodu osadzania</div>
+      <span class="f-label">Identyfikator środowiska</span>
+      <input class="f-input" id="cfg-env" type="text" placeholder="Default-201e5ede-…">
+      <div class="f-hint">Copilot Studio → Ustawienia → Zaawansowane → Metadane → Identyfikator środowiska</div>
     </div>
-
+    <div>
+      <span class="f-label">Nazwa schematu bota</span>
+      <input class="f-input" id="cfg-schema" type="text" placeholder="crbe7_NazwaBota">
+      <div class="f-hint">Copilot Studio → Ustawienia → Zaawansowane → Metadane → Nazwa schematu</div>
+    </div>
+ 
     <button class="cfg-btn" onclick="saveConfig()">Zapisz i uruchom →</button>
   </div>
 </div>
-
+ 
 <div id="app">
   <header>
     <div class="h-left">
-      <div class="status-dot"></div>
-      <span class="h-title" id="app-title">Asystent</span>
+      <div class="status-dot" id="sdot"></div>
+      <span class="h-title">Sekretarka Magdy</span>
     </div>
     <button id="settings-btn" onclick="showConfig()">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -123,73 +143,134 @@
       </svg>
     </button>
   </header>
-
-  <iframe id="bot-frame" src="" allow="microphone; camera" style="flex:1;border:none;background:#fff;display:block;width:100%;min-height:0;"></iframe>
-
-  <div id="voice-bar">
-    <div id="transcript-row">
-      <div id="transcript-box" contenteditable="true" data-placeholder="Transkrypt — możesz edytować…"></div>
-      <button id="copy-btn" onclick="copyTranscript()" title="Kopiuj">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-          <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-        </svg>
-      </button>
-    </div>
-
-    <div id="controls-row">
-      <button id="record-btn" onclick="toggleRec()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path class="mp" d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z"/>
-          <path class="mp" d="M19 10V12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12V10H3V12C3 16.42 6.24 20.08 10.5 20.83V23H13.5V20.83C17.76 20.08 21 16.42 21 12V10H19Z"/>
-        </svg>
-      </button>
-      <div class="hint-text" id="hint-text">
-        <strong>Naciśnij mikrofon</strong> i mów po polsku.<br>Tekst skopiuje się automatycznie — wklej go w czacie bota.
-      </div>
+ 
+  <div id="chat">
+    <div id="empty-state">
+      <div class="ei">🎙️</div>
+      <div class="et">Gotowy</div>
+      <div class="es">Naciśnij mikrofon i mów po polsku.<br>Możesz też wpisać wiadomość.</div>
     </div>
   </div>
+ 
+  <div id="transcript-bar"><div id="transcript-live"></div></div>
+ 
+  <footer>
+    <button id="record-btn" onclick="toggleRec()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path class="mp" d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z"/>
+        <path class="mp" d="M19 10V12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12V10H3V12C3 16.42 6.24 20.08 10.5 20.83V23H13.5V20.83C17.76 20.08 21 16.42 21 12V10H19Z"/>
+      </svg>
+    </button>
+    <div id="text-wrap">
+      <textarea id="text-input" rows="1" placeholder="Wpisz wiadomość…" oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+      <button id="send-btn" onclick="sendText()">
+        <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </footer>
 </div>
-
+ 
 <div id="toast"></div>
-
+ 
 <script>
-let CFG = { key:'', region:'westeurope', botUrl:'' };
+let CFG = { key:'', region:'westeurope', env:'', schema:'' };
+let dlToken=null, conversationId=null, watermark=null, pollInterval=null;
 let isRec=false, mr=null, chunks=[];
-
+ 
 function saveConfig(){
   const k=document.getElementById('cfg-key').value.trim();
   const r=document.getElementById('cfg-region').value.trim();
-  const b=document.getElementById('cfg-bot-url').value.trim();
+  const e=document.getElementById('cfg-env').value.trim();
+  const s=document.getElementById('cfg-schema').value.trim();
   if(!k||!r){ showToast('Uzupełnij klucz i region Azure Speech'); return; }
-  if(!b){ showToast('Uzupełnij URL bota'); return; }
-  CFG={key:k, region:r, botUrl:b};
-  localStorage.setItem('va3_cfg', JSON.stringify(CFG));
+  if(!e||!s){ showToast('Uzupełnij dane bota'); return; }
+  CFG={key:k,region:r,env:e,schema:s};
+  localStorage.setItem('va4_cfg',JSON.stringify(CFG));
   startApp();
 }
-
+ 
 function showConfig(){
   document.getElementById('config').style.display='flex';
   document.getElementById('app').style.display='none';
   document.getElementById('cfg-key').value=CFG.key;
   document.getElementById('cfg-region').value=CFG.region;
-  document.getElementById('cfg-bot-url').value=CFG.botUrl;
+  document.getElementById('cfg-env').value=CFG.env;
+  document.getElementById('cfg-schema').value=CFG.schema;
 }
-
+ 
 function loadConfig(){
-  try{ const s=localStorage.getItem('va3_cfg'); if(s){CFG={...CFG,...JSON.parse(s)}; return !!(CFG.key&&CFG.botUrl);} }catch(e){}
+  try{ const s=localStorage.getItem('va4_cfg'); if(s){CFG={...CFG,...JSON.parse(s)};return !!(CFG.key&&CFG.env&&CFG.schema);} }catch(e){}
   return false;
 }
-
-function startApp(){
-  document.getElementById('config').style.display='none';
-  document.getElementById('app').style.display='flex';
-  document.getElementById('bot-frame').src=CFG.botUrl;
+ 
+// ── DIRECT LINE via token endpoint ──
+function getTokenEndpoint(){
+  const envId=CFG.env.replace('Default-','').replace(/-/g,'');
+  return `https://default${envId}.28.environment.api.powerplatform.com/powervirtualagents/botsbyschema/${CFG.schema}/directline/token?api-version=2022-03-01-preview`;
 }
-
-async function toggleRec(){
-  if(isRec) stopRec(); else await startRec();
+ 
+async function initConversation(){
+  setStatus('connecting');
+  try {
+    const tokenUrl=getTokenEndpoint();
+    const tr=await fetch(tokenUrl,{method:'GET'});
+    if(!tr.ok) throw new Error('Token '+tr.status);
+    const td=await tr.json();
+    dlToken=td.token;
+ 
+    const cr=await fetch('https://directline.botframework.com/v3/directline/conversations',{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${dlToken}`,'Content-Type':'application/json'}
+    });
+    if(!cr.ok) throw new Error('Conv '+cr.status);
+    const cd=await cr.json();
+    conversationId=cd.conversationId;
+    dlToken=cd.token||dlToken;
+ 
+    setStatus('online');
+    addBubble('system','Połączono · Sekretarka Magdy');
+    startPolling();
+  } catch(e){
+    setStatus('offline');
+    addBubble('system','Błąd połączenia — sprawdź dane w ustawieniach');
+    console.error(e);
+  }
 }
-
+ 
+async function sendToBotText(text){
+  addBubble('user',text);
+  if(!conversationId){ showToast('Brak połączenia z botem'); return; }
+  showTyping();
+  try{
+    await fetch(`https://directline.botframework.com/v3/directline/conversations/${conversationId}/activities`,{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${dlToken}`,'Content-Type':'application/json'},
+      body:JSON.stringify({type:'message',from:{id:'user1',name:'Użytkownik'},text})
+    });
+  }catch(e){ hideTyping(); showToast('Błąd wysyłania'); }
+}
+ 
+function startPolling(){
+  if(pollInterval) clearInterval(pollInterval);
+  pollInterval=setInterval(async()=>{
+    if(!conversationId) return;
+    try{
+      const url=`https://directline.botframework.com/v3/directline/conversations/${conversationId}/activities`+(watermark?`?watermark=${watermark}`:'');
+      const res=await fetch(url,{headers:{'Authorization':`Bearer ${dlToken}`}});
+      if(!res.ok) return;
+      const d=await res.json(); watermark=d.watermark;
+      for(const a of d.activities||[]){
+        if(a.from?.role==='bot'&&a.type==='message'){ hideTyping(); addBubble('bot',a.text||'[Brak treści]'); }
+      }
+    }catch(e){}
+  },1500);
+}
+ 
+// ── RECORDING ──
+async function toggleRec(){ if(isRec) stopRec(); else await startRec(); }
+ 
 async function startRec(){
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
@@ -200,25 +281,24 @@ async function startRec(){
     mr.start();
     isRec=true;
     document.getElementById('record-btn').classList.add('recording');
-    document.getElementById('hint-text').innerHTML='<strong style="color:var(--recording)">● Nagrywam…</strong><br>Naciśnij ponownie aby zatrzymać.';
-    document.getElementById('transcript-row').classList.remove('visible');
+    setTranscript('🎙️ Nagrywam… naciśnij ponownie aby zatrzymać');
   }catch(e){ showToast('Brak dostępu do mikrofonu'); }
 }
-
+ 
 function stopRec(){
   if(mr&&isRec){
     mr.stop(); mr.stream.getTracks().forEach(t=>t.stop());
     isRec=false;
     document.getElementById('record-btn').classList.remove('recording');
-    document.getElementById('hint-text').innerHTML='<strong>⏳ Przetwarzam…</strong>';
+    setTranscript('⏳ Przetwarzam…');
   }
 }
-
+ 
 async function processAudio(){
   try{ const wav=await toWav(new Blob(chunks,{type:'audio/webm'})); await transcribe(wav); }
-  catch(e){ document.getElementById('hint-text').innerHTML='<strong>Błąd</strong> — spróbuj ponownie'; }
+  catch(e){ setTranscript(''); showToast('Błąd przetwarzania'); }
 }
-
+ 
 async function toWav(blob){
   const ab=await blob.arrayBuffer();
   const ctx=new AudioContext();
@@ -238,7 +318,7 @@ async function toWav(blob){
   new Uint8Array(wav,44).set(new Uint8Array(i16.buffer));
   return new Blob([wav],{type:'audio/wav'});
 }
-
+ 
 async function transcribe(wavBlob){
   const url=`https://${CFG.region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=pl-PL&format=detailed`;
   try{
@@ -246,38 +326,40 @@ async function transcribe(wavBlob){
     if(!res.ok) throw new Error('Speech '+res.status);
     const d=await res.json();
     const text=(d.DisplayText||'').trim();
-    if(text){
-      document.getElementById('transcript-box').textContent=text;
-      document.getElementById('transcript-row').classList.add('visible');
-      document.getElementById('hint-text').innerHTML='<strong>Gotowe!</strong> Tekst skopiowany — wklej w czacie bota.';
-      try{ await navigator.clipboard.writeText(text); showCopied(); }catch(e){}
-    } else {
-      document.getElementById('hint-text').innerHTML='<strong>Nie rozpoznano</strong> — spróbuj ponownie';
-      showToast('Nie rozpoznano mowy');
-    }
+    setTranscript('');
+    if(text) sendToBotText(text);
+    else showToast('Nie rozpoznano mowy — spróbuj ponownie');
   }catch(e){
-    document.getElementById('hint-text').innerHTML='<strong>Błąd Azure</strong> — sprawdź klucz w ustawieniach';
+    setTranscript('');
     showToast('Błąd Azure Speech'); console.error(e);
   }
 }
-
-async function copyTranscript(){
-  const text=document.getElementById('transcript-box').textContent.trim();
-  if(!text) return;
-  try{ await navigator.clipboard.writeText(text); showCopied(); }
-  catch(e){ showToast('Zaznacz tekst i skopiuj ręcznie'); }
+ 
+// ── UI ──
+function addBubble(type,text){
+  const chat=document.getElementById('chat');
+  const emp=document.getElementById('empty-state'); if(emp) emp.remove();
+  const d=document.createElement('div'); d.className='bubble '+type; d.textContent=text;
+  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
 }
-
-function showCopied(){
-  const btn=document.getElementById('copy-btn');
-  btn.classList.add('copied');
-  btn.innerHTML='<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML='<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'; },2000);
-}
-
+let typingEl=null;
+function showTyping(){ if(typingEl) return; typingEl=document.createElement('div'); typingEl.className='typing'; typingEl.innerHTML='<span></span><span></span><span></span>'; document.getElementById('chat').appendChild(typingEl); document.getElementById('chat').scrollTop=99999; }
+function hideTyping(){ if(typingEl){ typingEl.remove(); typingEl=null; } }
+function setStatus(s){ const d=document.getElementById('sdot'); d.className='status-dot'+(s==='online'?' online':s==='connecting'?' connecting':''); }
+function setTranscript(t){ document.getElementById('transcript-live').textContent=t; document.getElementById('transcript-bar').classList.toggle('active',!!t); }
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
-
+function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendText(); } }
+function sendText(){ const el=document.getElementById('text-input'); const t=el.value.trim(); if(!t) return; el.value=''; el.style.height=''; sendToBotText(t); }
+ 
+async function startApp(){
+  document.getElementById('config').style.display='none';
+  document.getElementById('app').style.display='flex';
+  await initConversation();
+}
+ 
 if(loadConfig()) startApp();
 </script>
 </body>
 </html>
+ 
